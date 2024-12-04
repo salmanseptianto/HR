@@ -1,6 +1,6 @@
-@extends('gm.templates.index')
+@extends('mh.templates.index')
 
-@section('page-kpi')
+@section('page-gm')
     <div class="container mx-auto p-4">
         <h2 class="text-2xl font-semibold mb-4">KPI List</h2>
         @if (session('success'))

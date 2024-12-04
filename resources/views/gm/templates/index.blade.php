@@ -57,8 +57,8 @@
 
         <!-- Main Content Area -->
         <main class="p-6">
-            @yield('page-dashboard')
-            @yield('page-kpi')
+            @yield('page-gm')
+           
         </main>
         <footer class="mt-6 bg-white p-4 rounded-lg shadow-lg">
             <p class="text-gray-500 text-center">© 2024 HR Group. All rights reserved.</p>

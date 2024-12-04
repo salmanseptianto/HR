@@ -14,6 +14,7 @@ class Kpi extends Model
         'jabatan',
         'desc',
         'bobot',
+        'date',
         'target',
         'realisasi',
         'skor',

@@ -1,6 +1,6 @@
 @extends('mh.templates.index')
 
-@section('page-kpi')
+@section('page-mh')
     <div class="container mx-auto p-4">
         <h2 class="text-2xl font-semibold mb-4">Edit KPI</h2>
         <form action="{{ route('kpi.update', $kpi->id) }}" method="POST" class="space-y-4">

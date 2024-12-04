@@ -107,11 +107,6 @@ class GmController extends Controller
     {
         return view('gm.adduser.index');
     }
-    public function print()
-    {
-        return view('gm.adduser.index');
-    }
-
     public function doadduser(Request $request)
     {
         // Validasi input datadoregister
@@ -129,8 +124,14 @@ class GmController extends Controller
         ]);
 
         // Redirect ke halaman tertentu setelah berhasil registrasi
-        return redirect()->route('admin')->with('success', 'Registration successful, please login!');
+        return redirect()->route('add.user')->with('success', 'Penambahan Manager Telah Berhasil');
     }
+
+    public function print()
+    {
+        return view('gm.print.index');
+    }
+
     public function viewkpi()
     {
         $kpis = Kpi::all();

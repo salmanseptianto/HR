@@ -28,10 +28,12 @@
                     <a href="{{ url('manager-hrd/kpi') }}" class="block py-2 px-4 rounded hover:bg-secondary">KPI</a>
                 </li>
                 <li>
-                    <a href="{{ url('manager-hrd/print') }}" class="block py-2 px-4 rounded hover:bg-secondary">Print</a>
+                    <a href="{{ url('manager-hrd/print') }}"
+                        class="block py-2 px-4 rounded hover:bg-secondary">Print</a>
                 </li>
                 <li>
-                    <a href="{{ url('manager-hrd/add-user') }}" class="block py-2 px-4 rounded hover:bg-secondary">Tambah Manager</a>
+                    <a href="{{ url('manager-hrd/add-user') }}"
+                        class="block py-2 px-4 rounded hover:bg-secondary">Tambah Bawahan</a>
                 </li>
             </ul>
         </nav>
@@ -57,8 +59,7 @@
 
         <!-- Main Content Area -->
         <main class="p-6">
-            @yield('page-dashboard')
-            @yield('page-kpi')
+            @yield('page-mh')
         </main>
         <footer class="mt-6 bg-white p-4 rounded-lg shadow-lg">
             <p class="text-gray-500 text-center">© 2024 HR Group. All rights reserved.</p>

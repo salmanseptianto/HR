@@ -1,6 +1,6 @@
-@extends('gm.templates.index')
+@extends('mh.templates.index')
 
-@section('page-gm')
+@section('page-mh')
     @if (session('success'))
         <div class="bg-green-500 text-white p-3 rounded mb-4">
             {{ session('success') }}
@@ -53,23 +53,48 @@
                 </div>
 
                 <div>
-                    <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
-                    <select id="role" name="role"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
-                        required>
-                        <option value="">Select Role</option>
-                        {{-- <option value="admin">General Manager</option> --}}
-                        <option value="mm">Manager Marketing</option>
-                        <option value="mp">Manager produksi</option>
-                        <option value="mk">Manager Keuangan</option>
-                        <option value="mh">Manager hrd</option>
-                        {{-- <option value="marketing">Marketing</option> --}}
-                    </select>
+                    <label for="jabatan" class="block text-sm font-medium text-gray-700">Jabatan</label>
+                    <input type="text" id="jabatan" name="jabatan" required placeholder="Enter Jabatan"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
+        focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 </div>
+
+                <div class="hidden">
+                    <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
+                    <input type="text" id="role" name="role" value="hrd" readonly
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
+        focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+
             </div>
             <div class="mt-6 flex justify-end">
                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Tambah</button>
             </div>
         </form>
+    </div>
+    <div class="bg-white p-6 rounded shadow-md mt-8">
+        <h3 class="text-xl font-semibold mb-4">User List</h3>
+        <table class="min-w-full table-auto">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2 border">Name</th>
+                    <th class="px-4 py-2 border">Email</th>
+                    <th class="px-4 py-2 border">Jabatan</th>
+                    <th class="px-4 py-2 border">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($users as $user)
+                    <tr>
+                        <td class="px-4 py-2 border">{{ $user->name }}</td>
+                        <td class="px-4 py-2 border">{{ $user->email }}</td>
+                        <td class="px-4 py-2 border">{{ $user->jabatan }}</td>
+                        <td class="px-4 py-2 border">
+                            <a href="{{ route('delete.user', $user->id) }}" class="text-red-600">Delete</a>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 @endsection

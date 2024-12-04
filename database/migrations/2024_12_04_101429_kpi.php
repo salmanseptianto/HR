@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -12,6 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('kpis', function (Blueprint $table) {
+            $table->date('tanggal')->default(Carbon::now()->format('Y-m-d'))->change();  // Set default date after the column exists
             $table->id();
             $table->string('nama');
             $table->string('jabatan');

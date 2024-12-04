@@ -68,7 +68,7 @@ Route::middleware('role:gm')->group(function () {
         Route::put('general-manager/kpi/{id}', 'kpiupdate')->name('kpi.update');
         Route::delete('general-manager/kpi/{id}', 'kpidestroy')->name('kpi.destroy');
 
-        Route::get('general-manager/add-user', 'adduser');
+        Route::get('general-manager/add-user', 'adduser')->name('add.user');
         Route::post('doadduser', 'doadduser')->name('doadduser');
     });
 });
@@ -76,7 +76,7 @@ Route::middleware('role:gm')->group(function () {
 Route::middleware('role:mh')->group(function () {
     Route::controller(MhController::class)->group(function () {
         Route::get('/', 'index');
-        Route::get('manager-hrd', 'index')->name('manager-hrd');
+        Route::get('manager-hrd', 'index')->name('mh');
         Route::get('manager-hrd/dashboard', 'index');
         Route::get('manager-hrd/print', 'print');
 
@@ -87,7 +87,8 @@ Route::middleware('role:mh')->group(function () {
         Route::put('manager-hrd/kpi/{id}', 'kpiupdate')->name('kpi.update');
         Route::delete('manager-hrd/kpi/{id}', 'kpidestroy')->name('kpi.destroy');
 
-        Route::get('manager-hrd/add-user', 'adduser');
+        Route::get('manager-hrd/add-user', 'adduser')->name('add.user');
+        Route::get('manager-hrd/deleteuser/{id}', 'deleteuser')->name('delete.user');
         Route::post('doadduser', 'doadduser')->name('doadduser');
     });
 });

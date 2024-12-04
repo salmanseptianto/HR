@@ -1,6 +1,6 @@
 @extends('gm.templates.index')
 
-@section('page-dashboard')
+@section('page-gm')
     <!-- Chart Section -->
     <div class="mt-8 bg-white shadow-md rounded p-6 chart-container">
         <h3 class="text-xl font-semibold mb-4">Chart Diagram</h3>
