@@ -22,7 +22,8 @@
             <!-- Jabatan field (position related to selected user) -->
             <div>
                 <label for="jabatan" class="block text-sm font-medium text-gray-700">Jabatan</label>
-                <select id="jabatan" name="jabatan" class="mt-1 p-2 w-full border rounded" required @readonly(true)>
+                <select id="jabatan" name="jabatan" class="mt-1 p-2 w-full border rounded" required>
+                    <option value="" disabled selected>-- Select Jabatan --</option>
                 </select>
             </div>
 
@@ -52,10 +53,45 @@
                 <input type="number" id="realisasi" name="realisasi" class="mt-1 p-2 w-full border rounded" required>
             </div>
 
-            {{-- <div class="mb-4">
-                <label for="date" class="block text-sm font-medium text-gray-700">Tanggal</label>
-                <input type="date" id="date" name="date" class="mt-1 p-2 w-full border rounded" required>
-            </div> --}}
+            <div class="mb-4 flex items-center space-x-4">
+                <!-- Month Dropdown -->
+                <div>
+                    <label for="month" class="block text-sm font-medium text-gray-700">Bulan</label>
+                    <select id="month" name="month" class="mt-1 p-2 w-full border rounded" required>
+                        <option value="" disabled selected>Pilih Bulan</option>
+                        <option value="Januari">Januari</option>
+                        <option value="Februari">Februari</option>
+                        <option value="Maret">Maret</option>
+                        <option value="April">April</option>
+                        <option value="Mei">Mei</option>
+                        <option value="Juni">Juni</option>
+                        <option value="Juli">Juli</option>
+                        <option value="Agustus">Agustus</option>
+                        <option value="September">September</option>
+                        <option value="Oktober">Oktober</option>
+                        <option value="November">November</option>
+                        <option value="Desember">Desember</option>
+                    </select>
+                </div>
+
+                <!-- Year Input -->
+                <div>
+                    <label for="year" class="block text-sm font-medium text-gray-700">Tahun</label>
+                    <select id="year" name="year" class="mt-1 p-2 w-full border rounded" required>
+                        <option value="" disabled selected>Pilih Tahun</option>
+                        @php
+                            $currentYear = date('Y');
+                            $years = range($currentYear, 2020); // Generates an array from current year to 1900
+                        @endphp
+
+                        @foreach ($years as $year)
+                            <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
+                                {{ $year }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
 
             <div class="text-right">
                 <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Add KPI</button>
@@ -66,14 +102,18 @@
     <!-- JavaScript to dynamically update jabatan based on selected nama -->
     <script>
         document.getElementById('nama').addEventListener('change', function() {
-            let selectedUser = this.options[this.selectedIndex];
-            let jabatanSelect = document.getElementById('jabatan');
-            jabatanSelect.innerHTML = ''; // Clear previous jabatan options
+            const selectedUser = this.options[this.selectedIndex];
+            const jabatanSelect = document.getElementById('jabatan');
 
-            let jabatanOption = document.createElement('option');
+            // Clear previous jabatan options
+            jabatanSelect.innerHTML = '';
+
+            // Add new option
+            const jabatanOption = document.createElement('option');
             jabatanOption.value = selectedUser.getAttribute('data-jabatan');
             jabatanOption.textContent = selectedUser.getAttribute('data-jabatan');
-            jabatanSelect.appendChild(jabatanOption); // Add the selected user's jabatan
+            jabatanOption.selected = true;
+            jabatanSelect.appendChild(jabatanOption);
         });
     </script>
 @endsection

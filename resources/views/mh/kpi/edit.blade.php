@@ -28,21 +28,23 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label for="bobot" class="block text-sm font-medium text-gray-700">Weight</label>
-                    <input type="number" id="bobot" name="bobot" value="{{ old('bobot', $kpi->bobot) }}"
+                    <input type="number" id="bobot" name="bobot" value="{{ number_format($kpi->bobot, 0, '.', '') }}"
                         class="mt-1 p-2 w-full border rounded" required>
                 </div>
                 <div>
                     <label for="target" class="block text-sm font-medium text-gray-700">Target</label>
-                    <input type="number" id="target" name="target" value="{{ old('target', $kpi->target) }}"
-                        class="mt-1 p-2 w-full border rounded" required readonly>
+                    <input type="number" id="target" name="target"
+                        value="{{ number_format($kpi->target, 0, '.', '') }}" class="mt-1 p-2 w-full border rounded"
+                        required readonly>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label for="realisasi" class="block text-sm font-medium text-gray-700">Realization</label>
-                    <input type="number" id="realisasi" name="realisasi" value="{{ old('realisasi', $kpi->realisasi) }}"
-                        class="mt-1 p-2 w-full border rounded" required>
+                    <input type="number" id="realisasi" name="realisasi"
+                        value="{{ number_format($kpi->realisasi, 0, '.', '') }}" class="mt-1 p-2 w-full border rounded"
+                        required>
                 </div>
             </div>
 

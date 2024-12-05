@@ -80,6 +80,10 @@ Route::middleware('role:mh')->group(function () {
         Route::get('manager-hrd/dashboard', 'index');
         Route::get('manager-hrd/print', 'print');
 
+        // manage Appraisal Routes
+        route::get('manager-hrd/add-appraisal', 'appraisal');
+
+        // manage KPI routes
         Route::get('manager-hrd/kpi', 'viewkpi')->name('kpi');
         Route::get('manager-hrd/add-kpi', 'kpi');
         Route::post('manager-hrd/add', 'add_kpi')->name('add');
@@ -87,6 +91,7 @@ Route::middleware('role:mh')->group(function () {
         Route::put('manager-hrd/kpi/{id}', 'kpiupdate')->name('kpi.update');
         Route::delete('manager-hrd/kpi/{id}', 'kpidestroy')->name('kpi.destroy');
 
+        // manage user
         Route::get('manager-hrd/add-user', 'adduser')->name('add.user');
         Route::get('manager-hrd/deleteuser/{id}', 'deleteuser')->name('delete.user');
         Route::post('doadduser', 'doadduser')->name('doadduser');

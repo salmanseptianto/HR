@@ -8,46 +8,116 @@
                 {{ session('success') }}
             </div>
         @endif
-        <div class="space-y-6">
-            <!-- Add New KPI Button -->
-            <div class="flex justify-between items-center">
-                <h2 class="text-xl font-bold text-gray-700">KPI Management</h2>
-                <a href="{{ url('manager-hrd/add-kpi') }}"
-                    class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded shadow-md transition duration-200">
-                    Add New KPI
-                </a>
-            </div>
 
+        <div class="space-y-6">
+
+            <div class="flex justify-between items-center mb-4">
+                <!-- Header Section -->
+                <h2 class="text-xl font-bold text-gray-700">KPI Management</h2>
+
+                <!-- Add KPI Button -->
+                <div class="flex justify-between items-center">
+                    <!-- Button Section -->
+                    <a href="{{ url('manager-hrd/kpi') }}"
+                        class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded shadow-md transition duration-200 mr-2">
+                        Print KPI
+                    </a>
+                    <a href="{{ url('manager-hrd/add-kpi') }}"
+                        class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded shadow-md transition duration-200 mr-2">
+                        Add KPI
+                    </a>
+                    <a href="{{ url('manager-hrd/add-appraisal') }}"
+                        class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded shadow-md transition duration-200">
+                        Add Appraisal
+                    </a>
+                </div>
+
+            </div>
             <!-- Search Form with Additional Filters -->
             <div class="space-y-4">
-                <form action="{{ route('kpi') }}" method="GET" class="flex items-center space-x-4 mb-4">
-                    <!-- Search by Name or Position -->
-                    <input type="text" name="search" value="{{ request('search') }}"
-                        class="p-2 w-full border rounded shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Search by name or position">
+                <form action="{{ route('kpi') }}" method="GET" class="space-y-4">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <!-- Name Filter -->
+                        <div class="flex-1">
+                            <label for="search" class="block text-sm font-medium text-gray-700">Nama</label>
+                            <select id="search" name="search" class="mt-1 p-2 w-full border rounded">
+                                <option value="" disabled selected>Pilih Nama</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->name }}"
+                                        {{ request('search') == $user->name ? 'selected' : '' }}>
+                                        {{ $user->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <!-- Search by Position -->
-                    <input type="text" name="search_jabatan" value="{{ request('search_jabatan') }}"
-                        class="p-2 w-full border rounded shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Search by position">
 
-                    <!-- Search by Date -->
-                    <input type="date" name="search_tanggal" value="{{ request('search_tanggal') }}"
-                        class="p-2 w-full border rounded shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Search by date">
+                        <!-- Month Filter -->
+                        <div class="flex-1">
+                            <label for="bulan" class="block text-sm font-medium text-gray-700">Bulan</label>
+                            <select id="bulan" name="bulan" class="mt-1 p-2 w-full border rounded">
+                                <option value="" disabled selected>Pilih Bulan</option>
+                                @php
+                                    $months = [
+                                        'Januari',
+                                        'Februari',
+                                        'Maret',
+                                        'April',
+                                        'Mei',
+                                        'Juni',
+                                        'Juli',
+                                        'Agustus',
+                                        'September',
+                                        'Oktober',
+                                        'November',
+                                        'Desember',
+                                    ];
+                                @endphp
 
-                    <!-- Search Button -->
-                    <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
-                        Search
-                    </button>
+                                @foreach ($months as $index => $month)
+                                    <option value="{{ $month }}" {{ request('bulan') == $month ? 'selected' : '' }}>
+                                        {{ $month }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Year Filter -->
+                        <div class="flex-1">
+                            <label for="tahun" class="block text-sm font-medium text-gray-700">Tahun</label>
+                            <select id="tahun" name="tahun" class="mt-1 p-2 w-full border rounded">
+                                <option value="" disabled selected>Pilih Tahun</option>
+                                @php
+                                    $currentYear = date('Y');
+                                    $years = range($currentYear, 2020); // Generates an array from current year to 2020
+                                @endphp
+
+                                @foreach ($years as $year)
+                                    <option value="{{ $year }}" {{ request('tahun') == $year ? 'selected' : '' }}>
+                                        {{ $year }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Search Button -->
+                        <div>
+                            <button type="submit" class="bg-blue-500 text-white mt-6 py-2 px-4 rounded">Search</button>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
 
-        @if ($kpis->count() > 0)
-            <!-- Displaying KPIs after search -->
+        @if (!request('search') && !request('bulan'))
+            <!-- Pesan awal tanpa pencarian -->
+            <div class="p-2 rounded mb-3 text-sm text-center text-gray-600">
+                Silahkan, Cari data terlebih dahulu 🔍
+            </div>
+        @elseif (request('search') && $kpis->count() > 0)
+            <!-- Menampilkan data KPI setelah pencarian -->
             <table class="table-auto w-full border-collapse border border-gray-200">
-                <thead>
+                <thead class="bg-primary text-white">
                     <tr>
                         <th class="border border-gray-300 p-2">Nama</th>
                         <th class="border border-gray-300 p-2">Jabatan</th>
@@ -65,10 +135,12 @@
                         <tr>
                             <td class="border border-gray-300 p-2">{{ $kpi->nama }}</td>
                             <td class="border border-gray-300 p-2">{{ $kpi->jabatan }}</td>
-                            <td class="border border-gray-300 p-2">{{ \Illuminate\Support\Str::limit($kpi->desc, 30) }}</td>
+                            <td class="border border-gray-300 p-2">{{ \Illuminate\Support\Str::limit($kpi->desc, 30) }}
+                            </td>
                             <td class="border border-gray-300 p-2">{{ number_format($kpi->bobot, 0, '.', '') }}</td>
                             <td class="border border-gray-300 p-2">{{ number_format($kpi->target, 0, '.', '') }}</td>
-                            <td class="border border-gray-300 p-2">{{ number_format($kpi->realisasi, 0, '.', '') }}</td>
+                            <td class="border border-gray-300 p-2">{{ number_format($kpi->realisasi, 0, '.', '') }}
+                            </td>
                             <td class="border border-gray-300 p-2">{{ number_format($kpi->skor, 0, '.', '') }}</td>
                             <td class="border border-gray-300 p-2">{{ $kpi->final_skor }}</td>
                             <td class="border border-gray-300 p-2">
@@ -82,9 +154,22 @@
                         </tr>
                     @endforeach
                 </tbody>
+                <tfoot class="font-bold">
+                    <tr>
+                        <td class="border border-gray-300 p-2 text-bold text-center" colspan="3">Total Skor Akhir
+                        </td>
+                        <td class="border border-gray-300 text-bold text-start pl-2">{{ $totalBobot }}</td>
+                        <td class="border border-gray-300 p-2" colspan="3"></td>
+                        <td class="border border-gray-300 p-2 text-bold text-start pl-2">{{ $totalFinalSkor }}</td>
+                        <td class="border border-gray-300 p-2"></td>
+                    </tr>
+                </tfoot>
             </table>
         @else
-            <p class="text-gray-700">No KPIs found based on your search criteria.</p>
+            <!-- Pesan data tidak ditemukan -->
+            <div class="bg-red-500 p-2 rounded mb-3 text-sm text-center text-white">
+                Maaf, data yang Anda cari tidak ditemukan 🙏
+            </div>
         @endif
 
     </div>

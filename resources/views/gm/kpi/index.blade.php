@@ -19,8 +19,8 @@
                     <th class="border border-gray-300 p-2">Bobot</th>
                     <th class="border border-gray-300 p-2">Target</th>
                     <th class="border border-gray-300 p-2">Realisasi</th>
-                    <th class="border border-gray-300 p-2">skor</th>
-                    <th class="border border-gray-300 p-2">Final skor</th>
+                    <th class="border border-gray-300 p-2">Skor</th>
+                    <th class="border border-gray-300 p-2">Final Skor</th>
                     <th class="border border-gray-300 p-2">Actions</th>
                 </tr>
             </thead>

@@ -25,7 +25,7 @@ class MhController extends Controller
 
     public function adduser()
     {
-        $users = User::where('role', 'hrd')->get(); 
+        $users = User::where('role', 'hrd')->get();
         return view('mh.adduser.index', compact('users'));
     }
 
@@ -71,26 +71,67 @@ class MhController extends Controller
     public function viewkpi(Request $request)
     {
         // Get search parameters
-        $search_name = $request->input('search');
-        $search_jabatan = $request->input('search_jabatan');
-        $search_tanggal = $request->input('search_tanggal');
+        $search_name = $request->input('search'); // Name filter
+        $bulan = $request->input('bulan'); // Month filter
+        $tahun = $request->input('tahun'); // Year filter
+
+        // Array of month names in Indonesian
+        $months = [
+            'Januari',
+            'Februari',
+            'Maret',
+            'April',
+            'Mei',
+            'Juni',
+            'Juli',
+            'Agustus',
+            'September',
+            'Oktober',
+            'November',
+            'Desember'
+        ];
 
         // Apply filters to the KPI query
         $kpis = Kpi::when($search_name, function ($query, $search_name) {
             return $query->where('nama', 'like', '%' . $search_name . '%');
         })
-            ->when($search_jabatan, function ($query, $search_jabatan) {
-                return $query->where('jabatan', 'like', '%' . $search_jabatan . '%');
+            ->when($bulan, function ($query) use ($bulan) {
+                // Format the bulan as a two-digit month (e.g., 01, 02, ..., 12)
+                $bulanFormatted = str_pad($bulan, 2, '0', STR_PAD_LEFT);
+                return $query->where('month', '=', $bulanFormatted); // Assuming 'month' is the month number or string
             })
-            ->when($search_tanggal, function ($query, $search_tanggal) {
-                return $query->whereDate('tanggal', $search_tanggal); // Filter by date
+            ->when($tahun, function ($query) use ($tahun) {
+                return $query->where('year', '=', $tahun); // Filter by year
             })
-            ->get();
+            ->get(); // Retrieve the filtered KPIs
 
-        // Fetch users for dropdown if needed
+        // Check if there are no results
+        $noResults = $kpis->isEmpty();
+
+        // Calculate the total final score based on the filtered KPIs
+        $totalFinalSkor = $noResults ? 0 : $kpis->sum('final_skor');
+
+        $totalBobot = $kpis->sum('bobot');
+
+        // Fetch users for the dropdown if needed (assuming HRD users are needed for filter or display)
         $users = User::where('role', 'hrd')->select('name', 'jabatan')->get();
 
-        return view('mh.kpi.index', compact('kpis', 'users', 'search_name', 'search_jabatan', 'search_tanggal'));
+        // Return the view with data
+        return view('mh.kpi.index', compact(
+            'kpis',
+            'users',
+            'search_name',
+            'bulan',
+            'tahun',
+            'noResults',
+            'totalFinalSkor', // Pass the total final score to the view
+            'months',
+            'totalBobot'// Pass the months array for displaying month names
+        ));
+    }
+
+    public function appraisal(){
+        return view('mh.appraisal.index');
     }
 
     public function kpi()
@@ -104,7 +145,7 @@ class MhController extends Controller
 
     public function add_kpi(Request $request)
     {
-        // Validate the request with additional validation for nama and jabatan
+        // Validate inputs
         $request->validate([
             'nama' => [
                 'required',
@@ -130,15 +171,16 @@ class MhController extends Controller
             'bobot' => 'required|numeric|min:0|max:100',
             'target' => 'required|numeric|min:0',
             'realisasi' => 'required|numeric|min:0',
+            'month' => 'required|string|min:0',
+            'year' => 'required|numeric|min:1900|max:' . date('Y'),
         ]);
 
-        // Calculate the scores
+        // Calculate scores
         $skor = ($request->realisasi / $request->target) * 100;
         $finalSkor = ($skor * $request->bobot) / 100;
 
-        // Get the current date using Carbon
-        $tanggal = $request->input('date') ?? Carbon::now()->format('Y-m-d');
-        // Create a new KPI record
+
+        // Save KPI record
         Kpi::create([
             'nama' => $request->nama,
             'jabatan' => $request->jabatan,
@@ -148,12 +190,14 @@ class MhController extends Controller
             'realisasi' => $request->realisasi,
             'skor' => $skor,
             'final_skor' => $finalSkor,
-            'tanggal' => $tanggal,  // Store the current date
+            'month' => $request->month,
+            'year' => $request->year,
         ]);
 
-        // Redirect to the KPI page with a success message
+        // Redirect to KPI page with success message
         return redirect()->route('kpi')->with('success', 'KPI added successfully!');
     }
+
 
     public function kpiedit($id)
     {
