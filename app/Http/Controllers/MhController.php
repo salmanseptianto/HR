@@ -126,11 +126,22 @@ class MhController extends Controller
             'noResults',
             'totalFinalSkor', // Pass the total final score to the view
             'months',
-            'totalBobot'// Pass the months array for displaying month names
+            'totalBobot' // Pass the months array for displaying month names
         ));
     }
 
-    public function appraisal(){
+    public function addappraisal()
+    {
+        return view('mh.appraisal.appraisal');
+    }
+
+    public function appraisal()
+    {
+        return view('mh.appraisal.appraisal');
+    }
+
+    public function indexappraisal()
+    {
         return view('mh.appraisal.index');
     }
 

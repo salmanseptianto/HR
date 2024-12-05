@@ -81,7 +81,9 @@ Route::middleware('role:mh')->group(function () {
         Route::get('manager-hrd/print', 'print');
 
         // manage Appraisal Routes
-        route::get('manager-hrd/add-appraisal', 'appraisal');
+        route::get('manager-hrd/add-appraisal', 'addappraisal');
+        route::get('manager-hrd/appraisal', 'appraisal');
+        route::get('manager-hrd/index', 'indexappraisal');
 
         // manage KPI routes
         Route::get('manager-hrd/kpi', 'viewkpi')->name('kpi');

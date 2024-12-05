@@ -135,8 +135,8 @@
                         <tr>
                             <td class="border border-gray-300 p-2">{{ $kpi->nama }}</td>
                             <td class="border border-gray-300 p-2">{{ $kpi->jabatan }}</td>
-                            <td class="border border-gray-300 p-2">{{ \Illuminate\Support\Str::limit($kpi->desc, 30) }}
-                            </td>
+                            <td class="border border-gray-300 p-2">{{ \Illuminate\Support\Str::limit($kpi->desc, 30) }}</td>
+                            {{-- <td class="border border-gray-300 p-2">{{ $kpi->desc }}</td> --}}
                             <td class="border border-gray-300 p-2">{{ number_format($kpi->bobot, 0, '.', '') }}</td>
                             <td class="border border-gray-300 p-2">{{ number_format($kpi->target, 0, '.', '') }}</td>
                             <td class="border border-gray-300 p-2">{{ number_format($kpi->realisasi, 0, '.', '') }}
