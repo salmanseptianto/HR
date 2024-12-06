@@ -75,25 +75,27 @@ Route::middleware('role:gm')->group(function () {
 
 Route::middleware('role:mh')->group(function () {
     Route::controller(MhController::class)->group(function () {
+        // Dashboard and General Routes
         Route::get('/', 'index');
         Route::get('manager-hrd', 'index')->name('mh');
         Route::get('manager-hrd/dashboard', 'index');
         Route::get('manager-hrd/print', 'print');
 
-        // manage Appraisal Routes
-        route::get('manager-hrd/add-appraisal', 'addappraisal');
-        route::get('manager-hrd/appraisal', 'appraisal');
-        route::get('manager-hrd/index', 'indexappraisal');
+        // Manage Appraisal Routes
+        Route::get('manager-hrd/add-appraisal', 'addappraisal');
+        Route::get('manager-hrd/appraisal', 'appraisal');
+        Route::get('manager-hrd/index', 'indexappraisal');
 
-        // manage KPI routes
+        // Manage KPI Routes
         Route::get('manager-hrd/kpi', 'viewkpi')->name('kpi');
-        Route::get('manager-hrd/add-kpi', 'kpi');
+        Route::get('manager-hrd/add-kpi', 'kpi')->name('add.kpi'); // Add KPI form
+        Route::get('manager-hrd/kpi-by-jabatan', 'getKpisByJabatan')->name('kpi.by.jabatan'); // AJAX KPI by jabatan
         Route::post('manager-hrd/add', 'add_kpi')->name('add');
         Route::get('manager-hrd/kpi/{id}/edit', 'kpiedit')->name('kpi.edit');
         Route::put('manager-hrd/kpi/{id}', 'kpiupdate')->name('kpi.update');
         Route::delete('manager-hrd/kpi/{id}', 'kpidestroy')->name('kpi.destroy');
 
-        // manage user
+        // Manage User Routes
         Route::get('manager-hrd/add-user', 'adduser')->name('add.user');
         Route::get('manager-hrd/deleteuser/{id}', 'deleteuser')->name('delete.user');
         Route::post('doadduser', 'doadduser')->name('doadduser');

@@ -41,7 +41,7 @@
                         <div class="flex-1">
                             <label for="search" class="block text-sm font-medium text-gray-700">Nama</label>
                             <select id="search" name="search" class="mt-1 p-2 w-full border rounded">
-                                <option value="" disabled selected>Pilih Nama</option>
+                                <option value="" selected>Pilih Nama</option>
                                 @foreach ($users as $user)
                                     <option value="{{ $user->name }}"
                                         {{ request('search') == $user->name ? 'selected' : '' }}>
@@ -51,12 +51,12 @@
                             </select>
                         </div>
 
-
                         <!-- Month Filter -->
                         <div class="flex-1">
                             <label for="bulan" class="block text-sm font-medium text-gray-700">Bulan</label>
                             <select id="bulan" name="bulan" class="mt-1 p-2 w-full border rounded">
-                                <option value="" disabled selected>Pilih Bulan</option>
+                                {{-- <option value="" disabled selected>Pilih Bulan</option> --}}
+                                <option value="" selected>Pilih Bulan</option>
                                 @php
                                     $months = [
                                         'Januari',
@@ -135,7 +135,8 @@
                         <tr>
                             <td class="border border-gray-300 p-2">{{ $kpi->nama }}</td>
                             <td class="border border-gray-300 p-2">{{ $kpi->jabatan }}</td>
-                            <td class="border border-gray-300 p-2">{{ \Illuminate\Support\Str::limit($kpi->desc, 30) }}</td>
+                            <td class="border border-gray-300 p-2">{{ \Illuminate\Support\Str::limit($kpi->desc, 30) }}
+                            </td>
                             {{-- <td class="border border-gray-300 p-2">{{ $kpi->desc }}</td> --}}
                             <td class="border border-gray-300 p-2">{{ number_format($kpi->bobot, 0, '.', '') }}</td>
                             <td class="border border-gray-300 p-2">{{ number_format($kpi->target, 0, '.', '') }}</td>

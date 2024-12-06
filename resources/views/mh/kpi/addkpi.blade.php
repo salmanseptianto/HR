@@ -19,7 +19,7 @@
                 </select>
             </div>
 
-            <!-- Jabatan field (position related to selected user) -->
+            <!-- Jabatan field -->
             <div>
                 <label for="jabatan" class="block text-sm font-medium text-gray-700">Jabatan</label>
                 <select id="jabatan" name="jabatan" class="mt-1 p-2 w-full border rounded" required>
@@ -27,19 +27,29 @@
                 </select>
             </div>
 
-            <!-- KPI description -->
+            <!-- KPI description (selectable or custom input) -->
             <div>
-                <label for="desc" class="block text-sm font-medium text-gray-700">KPI</label>
-                <input type="text" id="desc" name="desc" class="mt-1 p-2 w-full border rounded" required>
+                <label for="desc" class="block text-sm font-medium text-gray-700">Pilih Deskripsi</label>
+                <div id="desc-container" class="relative">
+                    <select id="desc" name="desc" class="mt-1 p-2 w-full border rounded">
+                        <option value="" disabled selected>-- Pilih Deskripsi --</option>
+                    </select>
+
+                    <!-- Custom Description Input (Initially Hidden) -->
+                    <div id="customDescContainer" class="mt-2 w-full">
+                        <label for="customDesc" class="block text-sm font-medium text-gray-700">Tambah Deskripsi</label>
+                        <input id="customDesc" name="desc" type="text" placeholder="Masukkan Deskripsi"
+                            class="mt-1 p-2 w-full border rounded">
+                    </div>
+                </div>
             </div>
 
+            <!-- Bobot and Target fields -->
             <div class="grid grid-cols-2 gap-4">
-                <!-- Bobot field -->
                 <div>
                     <label for="bobot" class="block text-sm font-medium text-gray-700">Bobot</label>
-                    <input type="number" id="bobot" name="bobot" class="mt-1 p-2 w-full border rounded" required>
+                    <input id="bobot" name="bobot" class="mt-1 p-2 w-full border rounded" required>
                 </div>
-                <!-- Target field (readonly) -->
                 <div>
                     <label for="target" class="block text-sm font-medium text-gray-700">Target</label>
                     <input value="100" type="number" id="target" name="target"
@@ -53,67 +63,85 @@
                 <input type="number" id="realisasi" name="realisasi" class="mt-1 p-2 w-full border rounded" required>
             </div>
 
+            <!-- Month and Year -->
             <div class="mb-4 flex items-center space-x-4">
-                <!-- Month Dropdown -->
                 <div>
                     <label for="month" class="block text-sm font-medium text-gray-700">Bulan</label>
                     <select id="month" name="month" class="mt-1 p-2 w-full border rounded" required>
                         <option value="" disabled selected>Pilih Bulan</option>
-                        <option value="Januari">Januari</option>
-                        <option value="Februari">Februari</option>
-                        <option value="Maret">Maret</option>
-                        <option value="April">April</option>
-                        <option value="Mei">Mei</option>
-                        <option value="Juni">Juni</option>
-                        <option value="Juli">Juli</option>
-                        <option value="Agustus">Agustus</option>
-                        <option value="September">September</option>
-                        <option value="Oktober">Oktober</option>
-                        <option value="November">November</option>
-                        <option value="Desember">Desember</option>
+                        @foreach (['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'] as $month)
+                            <option value="{{ $month }}">{{ $month }}</option>
+                        @endforeach
                     </select>
                 </div>
-
-                <!-- Year Input -->
                 <div>
                     <label for="year" class="block text-sm font-medium text-gray-700">Tahun</label>
                     <select id="year" name="year" class="mt-1 p-2 w-full border rounded" required>
                         <option value="" disabled selected>Pilih Tahun</option>
                         @php
                             $currentYear = date('Y');
-                            $years = range($currentYear, 2020); // Generates an array from current year to 1900
+                            $years = range($currentYear, $currentYear - 5);
                         @endphp
-
                         @foreach ($years as $year)
-                            <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
-                                {{ $year }}
-                            </option>
+                            <option value="{{ $year }}">{{ $year }}</option>
                         @endforeach
                     </select>
                 </div>
             </div>
 
+            <!-- Submit Button -->
             <div class="text-right">
                 <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Add KPI</button>
             </div>
         </form>
     </div>
 
-    <!-- JavaScript to dynamically update jabatan based on selected nama -->
     <script>
-        document.getElementById('nama').addEventListener('change', function() {
+        const namaSelect = document.getElementById('nama');
+        const jabatanSelect = document.getElementById('jabatan');
+        const descSelect = document.getElementById('desc');
+        const customDescInput = document.getElementById('customDesc');
+        const customDescContainer = document.getElementById('customDescContainer');
+        const bobotInput = document.getElementById('bobot');
+
+        // Update jabatan when selecting a user
+        namaSelect.addEventListener('change', function() {
             const selectedUser = this.options[this.selectedIndex];
-            const jabatanSelect = document.getElementById('jabatan');
+            const jabatan = selectedUser.getAttribute('data-jabatan');
 
-            // Clear previous jabatan options
-            jabatanSelect.innerHTML = '';
+            // Reset and populate the Jabatan dropdown
+            jabatanSelect.innerHTML = `<option value="${jabatan}" selected>${jabatan}</option>`;
 
-            // Add new option
-            const jabatanOption = document.createElement('option');
-            jabatanOption.value = selectedUser.getAttribute('data-jabatan');
-            jabatanOption.textContent = selectedUser.getAttribute('data-jabatan');
-            jabatanOption.selected = true;
-            jabatanSelect.appendChild(jabatanOption);
+            // Fetch KPIs dynamically based on selected jabatan
+            fetch(`/manager-hrd/kpi-by-jabatan?jabatan=${jabatan}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Populate the description select options
+                    descSelect.innerHTML = '<option value="" disabled selected>-- Pilih Deskripsi --</option>';
+                    data.forEach(kpi => {
+                        const option = document.createElement('option');
+                        option.value = kpi.desc;
+                        option.textContent = kpi.desc;
+                        option.setAttribute('data-bobot', kpi.bobot);
+                        descSelect.appendChild(option);
+                    });
+
+                    // Always show the custom description input
+                    customDescContainer.classList.remove('hidden');
+                });
+        });
+
+        // Update bobot when selecting desc
+        descSelect.addEventListener('change', function() {
+            const selectedDesc = this.options[this.selectedIndex];
+            bobotInput.value = selectedDesc.getAttribute('data-bobot') || '';
+        });
+
+        // If custom description is entered, set its value as desc
+        customDescInput.addEventListener('input', function() {
+            if (this.value) {
+                descSelect.value = ''; // Reset select if custom desc is typed
+            }
         });
     </script>
 @endsection

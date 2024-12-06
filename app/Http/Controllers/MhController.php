@@ -145,19 +145,39 @@ class MhController extends Controller
         return view('mh.appraisal.index');
     }
 
-    public function kpi()
+    public function kpi(Request $request)
     {
-        // Fetch all users with role 'marketing' and include 'name' and 'jabatan'
+        // Fetch the 'jabatan' from the request
+        $jabatan = $request->input('jabatan');
+
+        // Fetch KPIs based on 'jabatan'; if 'jabatan' is not provided, return an empty collection
+        $kpis = $jabatan ? KPI::where('jabatan', $jabatan)->get() : collect();
+
+        // Fetch users with role 'hrd'
         $users = User::where('role', 'hrd')->select('name', 'jabatan')->get();
 
-        // Pass users to the view
-        return view('mh.kpi.addkpi', compact('users'));
+        // Pass users and KPIs to the view
+        return view('mh.kpi.addkpi', compact('users', 'kpis'));
     }
+    
+    public function getKpisByJabatan(Request $request)
+    {
+        $jabatan = $request->input('jabatan');
+
+        if ($jabatan) {
+            $kpis = KPI::where('jabatan', $jabatan)->get(['desc', 'bobot']);
+            return response()->json($kpis);
+        }
+
+        return response()->json([]);
+    }
+
+
 
     public function add_kpi(Request $request)
     {
         // Validate inputs
-        $request->validate([
+        $validatedData = $request->validate([
             'nama' => [
                 'required',
                 'string',
@@ -178,11 +198,32 @@ class MhController extends Controller
                     }
                 },
             ],
-            'desc' => 'required|string|max:255',
-            'bobot' => 'required|numeric|min:0|max:100',
+            // 'desc' => [
+            //     'required',
+            //     'string',
+            //     'max:255',
+            //     function ($attribute, $value, $fail) use ($request) {
+            //         if (!User::where('desc', $value)->where('name', $request->nama)->exists()) {
+            //             $fail('The selected description does not exist or does not match the selected user.');
+            //         }
+            //     },
+            // ],
+            // 'bobot' => [
+            //     'required',
+            //     'numeric',
+            //     'min:0',
+            //     'max:100',
+            //     function ($attribute, $value, $fail) use ($request) {
+            //         if (!User::where('desc', $request->desc)->where('bobot', $value)->exists()) {
+            //             $fail('The provided weight does not match the selected description.');
+            //         }
+            //     },
+            // ],
+            'desc' => 'required|string',
+            'bobot' => 'required|string',
             'target' => 'required|numeric|min:0',
             'realisasi' => 'required|numeric|min:0',
-            'month' => 'required|string|min:0',
+            'month' => 'required|string',
             'year' => 'required|numeric|min:1900|max:' . date('Y'),
         ]);
 
@@ -190,19 +231,18 @@ class MhController extends Controller
         $skor = ($request->realisasi / $request->target) * 100;
         $finalSkor = ($skor * $request->bobot) / 100;
 
-
         // Save KPI record
         Kpi::create([
-            'nama' => $request->nama,
-            'jabatan' => $request->jabatan,
-            'desc' => $request->desc,
-            'bobot' => $request->bobot,
-            'target' => $request->target,
-            'realisasi' => $request->realisasi,
+            'nama' => $validatedData['nama'],
+            'jabatan' => $validatedData['jabatan'],
+            'desc' => $validatedData['desc'],
+            'bobot' => $validatedData['bobot'],
+            'target' => $validatedData['target'],
+            'realisasi' => $validatedData['realisasi'],
             'skor' => $skor,
             'final_skor' => $finalSkor,
-            'month' => $request->month,
-            'year' => $request->year,
+            'month' => $validatedData['month'],
+            'year' => $validatedData['year'],
         ]);
 
         // Redirect to KPI page with success message
