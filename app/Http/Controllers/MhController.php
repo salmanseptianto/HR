@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use PDF;
 use App\Models\Kpi;
 use App\Models\User;
+use App\Models\kinerja;
 use App\Models\Harian;
 use App\Models\Mingguan;
 use Illuminate\Http\Request;
@@ -130,19 +131,36 @@ class MhController extends Controller
         ));
     }
 
-    public function addappraisal()
+    public function kinerjaIndex()
     {
-        return view('mh.appraisal.appraisal');
+        $kpis = Kpi::select('nama')->distinct()->get();
+
+        // Pass the data to the view
+        return view('mh.kinerja.index', compact('kpis'));
     }
 
-    public function appraisal()
+    public function addkinerja(Request $request)
     {
-        return view('mh.appraisal.appraisal');
-    }
+        // Validate incoming request
+        $request->validate([
+            'nama' => 'required|exists:users,id', // Ensure 'nama' matches a valid user ID in the users table
+            'perilaku' => 'required|string',
+            'nilai' => 'required|integer|min:1|max:5',  // Add validation for nilai (rating)
+            'month' => 'required|string',
+            'year' => 'required|integer|min:2000|max:' . now()->year,
+        ]);
 
-    public function indexappraisal()
-    {
-        return view('mh.appraisal.index');
+        // Insert data into the kinerjas table
+        Kinerja::create([
+            'user_id' => $request->input('nama'),        // Assuming 'nama' stores user ID
+            'perilaku' => $request->input('perilaku'),
+            'nilai' => $request->input('nilai'),        // Include 'nilai' in the insert
+            'month' => $request->input('month'),
+            'year' => $request->input('year'),
+        ]);
+
+        // Redirect to the 'kpi' route with a success message
+        return redirect()->route('kpi')->with('success', 'Data kinerja berhasil ditambahkan.');
     }
 
     public function kpi(Request $request)
@@ -159,7 +177,7 @@ class MhController extends Controller
         // Pass users and KPIs to the view
         return view('mh.kpi.addkpi', compact('users', 'kpis'));
     }
-    
+
     public function getKpisByJabatan(Request $request)
     {
         $jabatan = $request->input('jabatan');

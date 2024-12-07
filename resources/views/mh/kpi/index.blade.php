@@ -26,9 +26,9 @@
                         class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded shadow-md transition duration-200 mr-2">
                         Add KPI
                     </a>
-                    <a href="{{ url('manager-hrd/add-appraisal') }}"
+                    <a href="{{ url('manager-hrd/kinerja') }}"
                         class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded shadow-md transition duration-200">
-                        Add Appraisal
+                        Add Kinerja
                     </a>
                 </div>
 

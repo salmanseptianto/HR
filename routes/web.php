@@ -81,10 +81,10 @@ Route::middleware('role:mh')->group(function () {
         Route::get('manager-hrd/dashboard', 'index');
         Route::get('manager-hrd/print', 'print');
 
-        // Manage Appraisal Routes
-        Route::get('manager-hrd/add-appraisal', 'addappraisal');
-        Route::get('manager-hrd/appraisal', 'appraisal');
-        Route::get('manager-hrd/index', 'indexappraisal');
+        // Manage kinerja Routes
+        Route::get('manager-hrd/kinerja', 'kinerjaIndex');
+        Route::get('manager-hrd/add-kinerja', 'addkinerja')->name('add.kinerja');  // Display form
+        Route::post('manager-hrd/add-kinerja', 'addkinerja')->name('add.kinerja'); // Handle form submission
 
         // Manage KPI Routes
         Route::get('manager-hrd/kpi', 'viewkpi')->name('kpi');
