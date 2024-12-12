@@ -101,6 +101,9 @@ Route::middleware('role:mh')->group(function () {
         Route::get('manager-hrd/add-user', 'adduser')->name('add.user');
         Route::get('manager-hrd/deleteuser/{id}', 'deleteuser')->name('delete.user');
         Route::post('doadduser', 'doadduser')->name('doadduser');
+
+        Route::get('manager-hrd/kpi/export-pdf/{type}', 'KPIexportPDF')->name('kpi.export.pdf');
+        Route::get('manager-hrd/kpi/export-excel/{type}', 'KPIexportExcel')->name('kpi.export.excel');
     });
 });
 
@@ -145,7 +148,7 @@ Route::middleware('role:marketing')->group(function () {
     });
 });
 
-Route::middleware('role:admin,mm')->group(function () {
+Route::middleware('role:admin,mm, mh')->group(function () {
     Route::controller(ExportController::class)->group(function () {
         Route::get('laporan-marketing/laporan-harian/export-excel/{type}', 'exportExcelH')->name('harian.export.excel');
         Route::get('laporan-marketing/laporan-harian/export-pdf/{type}', 'exportPDFH')->name('harian.export.pdf');
@@ -153,6 +156,8 @@ Route::middleware('role:admin,mm')->group(function () {
         Route::get('laporan-marketing/laporan-mingguan/export-pdf/{type}', 'exportPDFM')->name('mingguan.export.pdf');
     });
 });
+
+
 
 // Route::get('/test.email', function (){
 //     Mail::to('112umarshahib@general-managerail.com')

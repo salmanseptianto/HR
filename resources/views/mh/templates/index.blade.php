@@ -30,10 +30,6 @@
                     <a href="{{ url('manager-hrd/kpi') }}" class="block py-2 px-4 rounded hover:bg-secondary">KPI</a>
                 </li>
                 <li>
-                    <a href="{{ url('manager-hrd/print') }}"
-                        class="block py-2 px-4 rounded hover:bg-secondary">Print</a>
-                </li>
-                <li>
                     <a href="{{ url('manager-hrd/add-user') }}"
                         class="block py-2 px-4 rounded hover:bg-secondary">Tambah Bawahan</a>
                 </li>

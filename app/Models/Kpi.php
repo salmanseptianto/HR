@@ -21,4 +21,10 @@ class Kpi extends Model
         'skor',
         'final_skor'
     ];
+
+    // Define the relationship with the User model
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

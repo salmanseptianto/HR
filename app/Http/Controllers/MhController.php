@@ -2,23 +2,79 @@
 
 namespace App\Http\Controllers;
 
-use PDF;
+// use PDF;
+use Carbon\Carbon;
 use App\Models\Kpi;
 use App\Models\User;
-use App\Models\kinerja;
 use App\Models\Harian;
+use App\Models\kinerja;
 use App\Models\Mingguan;
+use Barryvdh\DomPDF\Facade\PDF;
+use App\Exports\KpiExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Crypt;
-use Carbon\Carbon;
 
 class MhController extends Controller
 {
+
+    public function KPIexportPDF(Request $request, $type)
+    {
+        // Get filter parameters from the request
+        $search = $request->input('search');
+        $bulan = $request->input('bulan', '');
+        $tahun = $request->input('tahun', '');
+
+        // Build the KPI query with filters
+        $kpisQuery = Kpi::query();
+
+        // Apply filters
+        $kpis = Kpi::when(
+            $search,
+            function ($query, $search) {
+                $query->whereHas('user', function ($subQuery) use ($search) {
+                    $subQuery->where('name', 'like', '%' . $search . '%');
+                });
+            }
+        )
+            ->when($bulan, function ($query) use ($bulan) {
+                $query->whereMonth('created_at', $bulan);
+            })
+            ->when($tahun, function ($query) use ($tahun) {
+                $query->whereYear('created_at', $tahun);
+            })
+            ->get();
+
+        // Redirect if no data found
+        if ($kpis->isEmpty()) {
+            return redirect()->route('kpi')->with('message', 'No data found for export.');
+        }
+
+        // Calculate scores and derive additional data
+        $totalFinalSkor = $kpis->sum('final_skor');
+        $kinerja = Kpi::when($bulan, function ($query) use ($bulan) {
+            $query->whereMonth('created_at', $bulan);
+        })->when($tahun, function ($query) use ($tahun) {
+            $query->whereYear('created_at', $tahun);
+        })->sum('skor');
+
+        $hasilAkhir = $totalFinalSkor + $kinerja;
+        $kategori = $hasilAkhir >= 75 ? 'Excellent' : ($hasilAkhir >= 50 ? 'Good' : 'Needs Improvement');
+
+        // Prepare data for PDF
+        $data = compact('kpis', 'type', 'search', 'bulan', 'tahun', 'totalFinalSkor', 'kinerja', 'hasilAkhir', 'kategori');
+
+        // Generate PDF
+        $pdf = PDF::loadView('mh.exports.kpi-pdf', $data);
+        return $pdf->download('kpi-report.pdf');
+    }
+
+
     public function index()
     {
         return view('mh.dashboard');
@@ -137,7 +193,7 @@ class MhController extends Controller
         $nilaiKinerja = $kinerja->pluck('nilai')->toArray();
         $totalNilai = count($nilaiKinerja) >= 5 ? (array_sum($nilaiKinerja) / 5) * 20 : 0;
 
-      
+
         // Return the view with data
         return view('mh.kpi.index', compact(
             'kpis',

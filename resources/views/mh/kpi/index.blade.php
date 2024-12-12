@@ -1,19 +1,28 @@
 @extends('mh.templates.index')
 
 @section('page-mh')
+    @if (session('message'))
+        <div class="alert alert-warning">
+            {{ session('message') }}
+        </div>
+    @endif
     <div class="container mx-auto p-6 text-black shadow-md rounded-md bg-white">
         <!-- Header Section -->
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-semibold">KPI dan Kinerja</h2>
             <div class="flex space-x-3">
-                <a href="{{ url('manager-hrd/kpi') }}"
-                    class="bg-gray-700 hover:bg-gray-800 text-white py-2 px-4 rounded-md">Print KPI</a>
+                <!-- Pass 'pdf' as the 'type' parameter -->
+                <a href="{{ route('kpi.export.pdf', ['type' => 'pdf', 'bulan' => $bulan, 'tahun' => $tahun]) }}"
+                    class="bg-red-700 hover:bg-red-800 text-white py-2 px-4 rounded-md">Export PDF</a>
                 <a href="{{ url('manager-hrd/add-kpi') }}"
                     class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md">Add KPI</a>
+
                 <a href="{{ url('manager-hrd/add-kinerja') }}"
                     class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md">Add Kinerja</a>
             </div>
+
         </div>
+
 
         <!-- Success Message -->
         @if (session('success'))
@@ -201,8 +210,8 @@
                 </tbody>
             </table>
         @else
-            <div class="bg-red-500 p-2 rounded mb-3 text-sm text-center text-white">
-                Maaf, data yang Anda cari tidak ditemukan 🙏
+            <div class=" p-2 rounded mb-3 text-sm text-center text-black">
+                Mohon Maaf, Harap cari data terlebih dahulu 🙏
             </div>
         @endif
     </div>

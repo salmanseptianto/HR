@@ -13,7 +13,7 @@ class KinerjaPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true; // Allow all users to view any kinerja
     }
 
     /**
@@ -21,7 +21,7 @@ class KinerjaPolicy
      */
     public function view(User $user, kinerja $kinerja): bool
     {
-        //
+        return true; // Allow all users to view a specific kinerja
     }
 
     /**
@@ -29,7 +29,7 @@ class KinerjaPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return true; // Allow all users to create kinerja
     }
 
     /**
@@ -37,7 +37,7 @@ class KinerjaPolicy
      */
     public function update(User $user, kinerja $kinerja): bool
     {
-        //
+        return $user->id === $kinerja->user_id; // Allow only the owner to update
     }
 
     /**
@@ -45,7 +45,7 @@ class KinerjaPolicy
      */
     public function delete(User $user, kinerja $kinerja): bool
     {
-        //
+        return $user->id === $kinerja->user_id; // Allow only the owner to delete
     }
 
     /**
@@ -53,7 +53,7 @@ class KinerjaPolicy
      */
     public function restore(User $user, kinerja $kinerja): bool
     {
-        //
+        return $user->id === $kinerja->user_id; // Allow only the owner to restore
     }
 
     /**
@@ -61,6 +61,6 @@ class KinerjaPolicy
      */
     public function forceDelete(User $user, kinerja $kinerja): bool
     {
-        //
+        return $user->id === $kinerja->user_id; // Allow only the owner to force delete
     }
 }

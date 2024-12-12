@@ -2,18 +2,68 @@
 
 namespace App\Http\Controllers;
 
+// use PDF;
+use App\Models\Kpi;
+use App\Models\kinerja;
+use App\Models\Harian;
+use App\Models\Mingguan;
 use Illuminate\Http\Request;
+use App\Exports\HarianExport;
+use App\Exports\MingguanExport;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\HarianExport;
-use App\Exports\MingguanExport;
-use PDF;
-use App\Models\Harian;
-use App\Models\Mingguan;
+use App\Exports\KpiExport;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+
 
 class ExportController extends Controller
 {
+    // Export to Excel
+    public function KPIexportPDF(Request $request, $type)
+    {
+        // Get filter parameters
+        $search = $request->input('search', '');
+        $bulan = $request->input('bulan', '');
+        $tahun = $request->input('tahun', '');
+
+        // Query the KPI data based on filters
+        $kpis = Kpi::when($search, function ($query, $search) {
+            $query->whereHas('user', function ($subQuery) use ($search) {
+                $subQuery->where('name', 'like', '%' . $search . '%');
+            });
+        })
+            ->when($bulan, function ($query) use ($bulan) {
+                $query->whereMonth('created_at', $bulan);
+            })
+            ->when($tahun, function ($query) use ($tahun) {
+                $query->whereYear('created_at', $tahun);
+            })
+            ->get();
+
+        if ($kpis->isEmpty()) {
+            return redirect()->route('kpi')->with('message', 'No data found for export.');
+        }
+
+        // Calculate the total score
+        $totalFinalSkor = $kpis->sum('final_skor');
+
+        // Prepare data for the PDF view
+        $data = compact(
+            'kpis',
+            'totalFinalSkor',
+            'search',
+            'bulan',
+            'tahun',
+            'type'
+        );
+
+        // Generate the PDF
+        $pdf = PDF::loadView('mh.exports.kpi-pdf', $data);
+        return $pdf->download('kpi-report.pdf');
+    }
+
     public function exportExcelH(Request $request, $type)
     {
         $project = $request->input('project', 'all');
