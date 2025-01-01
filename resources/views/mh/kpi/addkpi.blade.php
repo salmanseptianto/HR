@@ -28,32 +28,43 @@
             </div>
 
             <!-- KPI description (selectable or custom input) -->
-            <div>
-                <label for="desc" class="block text-sm font-medium text-gray-700">Pilih Deskripsi</label>
-                <div id="desc-container" class="relative">
-                    <select id="desc" name="desc" class="mt-1 p-2 w-full border rounded">
-                        <option value="" disabled selected>-- Pilih Deskripsi --</option>
-                    </select>
-
-                    <!-- Custom Description Input (Initially Hidden) -->
-                    <div id="customDescContainer" class="mt-2 w-full">
-                        <label for="customDesc" class="block text-sm font-medium text-gray-700">Tambah Deskripsi</label>
-                        <input id="customDesc" name="desc" type="text" placeholder="Masukkan Deskripsi"
-                            class="mt-1 p-2 w-full border rounded">
+            <div class="space-y-6">
+                <!-- Deskripsi KPI -->
+                <div>
+                    <label for="desc" class="block text-sm font-medium text-gray-700">Pilih Deskripsi</label>
+                    <div id="desc-container" class="relative mt-1">
+                        <select id="desc" name="desc"
+                            class="block w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
+                            <option value="" disabled selected>-- Pilih Deskripsi --</option>
+                        </select>
                     </div>
                 </div>
-            </div>
 
-            <!-- Bobot and Target fields -->
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label for="bobot" class="block text-sm font-medium text-gray-700">Bobot</label>
-                    <input id="bobot" name="bobot" class="mt-1 p-2 w-full border rounded" required>
+                <!-- Custom Deskripsi dan Bobot -->
+                <div id="customDescContainer" class="hidden space-y-4">
+                    <div>
+                        <label for="customDesc" class="block text-sm font-medium text-gray-700">Tambah Deskripsi</label>
+                        <input id="customDesc" name="desc" type="text" placeholder="Masukkan Deskripsi"
+                            class="block w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
+                    </div>
                 </div>
-                <div>
-                    <label for="target" class="block text-sm font-medium text-gray-700">Target</label>
-                    <input value="100" type="number" id="target" name="target"
-                        class="mt-1 p-2 w-full border rounded" required readonly>
+
+                <!-- Bobot dan Target -->
+                <div class="grid grid-cols-2 gap-6">
+                    <!-- Bobot -->
+                    <div>
+                        <label for="bobot" class="block text-sm font-medium text-gray-700">Bobot</label>
+                        <input id="bobot" name="bobot" type="text"
+                            class="block w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                            required>
+                    </div>
+                    <!-- Target -->
+                    <div>
+                        <label for="target" class="block text-sm font-medium text-gray-700">Target</label>
+                        <input id="target" name="target" type="number" value="100"
+                            class="block w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                            readonly>
+                    </div>
                 </div>
             </div>
 
@@ -61,32 +72,6 @@
             <div>
                 <label for="realisasi" class="block text-sm font-medium text-gray-700">Realisasi akhir bulan %</label>
                 <input type="number" id="realisasi" name="realisasi" class="mt-1 p-2 w-full border rounded" required>
-            </div>
-
-            <!-- Month and Year -->
-            <div class="mb-4 flex items-center space-x-4">
-                <div>
-                    <label for="month" class="block text-sm font-medium text-gray-700">Bulan</label>
-                    <select id="month" name="month" class="mt-1 p-2 w-full border rounded" required>
-                        <option value="" disabled selected>Pilih Bulan</option>
-                        @foreach (['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'] as $month)
-                            <option value="{{ $month }}">{{ $month }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label for="year" class="block text-sm font-medium text-gray-700">Tahun</label>
-                    <select id="year" name="year" class="mt-1 p-2 w-full border rounded" required>
-                        <option value="" disabled selected>Pilih Tahun</option>
-                        @php
-                            $currentYear = date('Y');
-                            $years = range($currentYear, $currentYear - 5);
-                        @endphp
-                        @foreach ($years as $year)
-                            <option value="{{ $year }}">{{ $year }}</option>
-                        @endforeach
-                    </select>
-                </div>
             </div>
 
             <!-- Submit Button -->
@@ -99,7 +84,7 @@
     <script>
         const namaSelect = document.getElementById('nama');
         const jabatanSelect = document.getElementById('jabatan');
-        const descSelect = document.getElementById('desc');
+        const selectedDesc = document.getElementById('desc');
         const customDescInput = document.getElementById('customDesc');
         const customDescContainer = document.getElementById('customDescContainer');
         const bobotInput = document.getElementById('bobot');
@@ -112,18 +97,24 @@
             // Reset and populate the Jabatan dropdown
             jabatanSelect.innerHTML = `<option value="${jabatan}" selected>${jabatan}</option>`;
 
-            // Fetch KPIs dynamically based on selected jabatan
-            fetch(`/manager-hrd/kpi-by-jabatan?jabatan=${jabatan}`)
+            // Fetch KPIs dynamically based on selected jabatan and desc
+            fetch(`/manager-hrd/kpi-by-jabatan?jabatan=${jabatan}&desc=${selectedDesc.value}`)
                 .then(response => response.json())
                 .then(data => {
                     // Populate the description select options
-                    descSelect.innerHTML = '<option value="" disabled selected>-- Pilih Deskripsi --</option>';
+                    selectedDesc.innerHTML =
+                        '<option value="" disabled selected>-- Pilih Deskripsi --</option>';
                     data.forEach(kpi => {
-                        const option = document.createElement('option');
-                        option.value = kpi.desc;
-                        option.textContent = kpi.desc;
-                        option.setAttribute('data-bobot', kpi.bobot);
-                        descSelect.appendChild(option);
+                        // Check if the option already exists in the dropdown
+                        const existingOption = Array.from(selectedDesc.options).find(option => option
+                            .value === kpi.desc);
+                        if (!existingOption) {
+                            const option = document.createElement('option');
+                            option.value = kpi.desc;
+                            option.textContent = kpi.desc;
+                            option.setAttribute('data-bobot', kpi.bobot);
+                            selectedDesc.appendChild(option);
+                        }
                     });
 
                     // Always show the custom description input
@@ -132,15 +123,15 @@
         });
 
         // Update bobot when selecting desc
-        descSelect.addEventListener('change', function() {
-            const selectedDesc = this.options[this.selectedIndex];
-            bobotInput.value = selectedDesc.getAttribute('data-bobot') || '';
+        selectedDesc.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            bobotInput.value = selectedOption.getAttribute('data-bobot') || ''; // Set bobot based on desc
         });
 
         // If custom description is entered, set its value as desc
         customDescInput.addEventListener('input', function() {
             if (this.value) {
-                descSelect.value = ''; // Reset select if custom desc is typed
+                selectedDesc.value = ''; // Reset select if custom desc is typed
             }
         });
     </script>

@@ -8,6 +8,8 @@
     @vite('resources/css/app.css')
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="icon" href="{{ asset('foto/logo.png') }}" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
+
 </head>
 
 <body class="flex min-h-screen bg-gray-100">
@@ -48,13 +50,37 @@
                 ☰
             </button>
             <h2 class="text-2xl font-semibold">Dashboard Manager HRD</h2>
-            <div>
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Logout</button>
-                </form>
-            </div>
+            <div x-data="{ open: false }" class="relative">
+                <!-- Profile icon or user name -->
+                <button @click="open = !open"
+                    class="flex items-center space-x-2 p-2 rounded hover:bg-gray-100 focus:outline-none">
+                    <span class="text-lg">Menu</span>
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                        aria-hidden="true">
+                        <path fill-rule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
 
+                <!-- Dropdown Menu -->
+                <div x-show="open" x-transition
+                    class="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg z-10">
+                    <div class="py-2">
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit"
+                                class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</button>
+                        </form>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit"
+                                class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
         </header>
 
         <!-- Main Content Area -->

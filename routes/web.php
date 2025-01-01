@@ -81,10 +81,12 @@ Route::middleware('role:mh')->group(function () {
         Route::get('manager-hrd/dashboard', 'index');
         Route::get('manager-hrd/print', 'print');
 
-        // Manage kinerja Routes
-        Route::get('manager-hrd/kinerja', 'kinerjaIndex');
-        Route::get('manager-hrd/add-kinerja', 'addkinerja')->name('add.kinerja');  // Display form
-        Route::post('manager-hrd/add-kinerja', 'addkinerja')->name('add.kinerja'); // Handle form submission
+        Route::get('manager-hrd/kinerja', 'kinerjaIndex')->name('kinerja.index');
+        Route::get('manager-hrd/add-kinerja', 'addkinerja')->name('add.kinerja');
+        Route::post('manager-hrd/add-kinerja', 'storekinerja')->name('add.kinerja.submit');
+        Route::get('manager-hrd/edit-kinerja/{id}', 'editkinerja')->name('edit.kinerja');
+        Route::put('manager-hrd/edit-kinerja/{id}', 'updatekinerja')->name('update.kinerja');
+        Route::delete('manager-hrd/delete-kinerja/{id}', 'deletekinerja')->name('delete.kinerja');
 
         // Manage KPI Routes
         Route::get('manager-hrd/kpi', 'viewkpi')->name('kpi');

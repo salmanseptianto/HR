@@ -97,14 +97,14 @@ class MhController extends Controller
             return $query->where('nama', 'like', '%' . $search_name . '%');
         })
             ->when($bulan, function ($query) use ($bulan) {
-                // Format the bulan as a two-digit month (e.g., 01, 02, ..., 12)
-                $bulanFormatted = str_pad($bulan, 2, '0', STR_PAD_LEFT);
-                return $query->where('month', '=', $bulanFormatted); // Assuming 'month' is the month number or string
+                // Filter by month from created_at
+                return $query->whereMonth('created_at', '=', $bulan);
             })
             ->when($tahun, function ($query) use ($tahun) {
-                return $query->where('year', '=', $tahun); // Filter by year
+                // Filter by year from created_at
+                return $query->whereYear('created_at', '=', $tahun);
             })
-            ->get(); // Retrieve the filtered KPIs
+            ->get();
 
         // Check if there are no results
         $noResults = $kpis->isEmpty();
@@ -114,9 +114,30 @@ class MhController extends Controller
 
         $totalBobot = $kpis->sum('bobot');
 
-        // Fetch users for the dropdown if needed (assuming HRD users are needed for filter or display)
+        // Fetch users for the dropdown if needed
         $users = User::where('role', 'hrd')->select('name', 'jabatan')->get();
 
+        // Apply filters to the Kinerja query
+        $kinerja = Kinerja::when($search_name, function ($query, $search_name) {
+            return $query->whereHas('user', function ($subQuery) use ($search_name) {
+                $subQuery->where('name', 'like', '%' . $search_name . '%');
+            });
+        })
+            ->when($bulan, function ($query) use ($bulan) {
+                // Filter by month from created_at
+                return $query->whereMonth('created_at', '=', $bulan);
+            })
+            ->when($tahun, function ($query) use ($tahun) {
+                // Filter by year from created_at
+                return $query->whereYear('created_at', '=', $tahun);
+            })
+            ->get();
+
+        // Calculate the total kinerja score using the provided formula
+        $nilaiKinerja = $kinerja->pluck('nilai')->toArray();
+        $totalNilai = count($nilaiKinerja) >= 5 ? (array_sum($nilaiKinerja) / 5) * 20 : 0;
+
+      
         // Return the view with data
         return view('mh.kpi.index', compact(
             'kpis',
@@ -125,42 +146,90 @@ class MhController extends Controller
             'bulan',
             'tahun',
             'noResults',
-            'totalFinalSkor', // Pass the total final score to the view
+            'totalFinalSkor',
             'months',
-            'totalBobot' // Pass the months array for displaying month names
+            'totalBobot',
+            'kinerja',
+            'totalNilai' // Pass totalNilai to the view
         ));
     }
 
     public function kinerjaIndex()
     {
-        $kpis = Kpi::select('nama')->distinct()->get();
-
-        // Pass the data to the view
-        return view('mh.kinerja.index', compact('kpis'));
+        // Retrieve all kinerja data with associated users
+        $kinerja = Kinerja::with('user')->get();
+        return view('mh.kinerja.index', compact('kinerja'));
     }
 
-    public function addkinerja(Request $request)
+    // Display form for adding Kinerja
+    public function addkinerja()
     {
-        // Validate incoming request
-        $request->validate([
-            'nama' => 'required|exists:users,id', // Ensure 'nama' matches a valid user ID in the users table
-            'perilaku' => 'required|string',
-            'nilai' => 'required|integer|min:1|max:5',  // Add validation for nilai (rating)
-            'month' => 'required|string',
-            'year' => 'required|integer|min:2000|max:' . now()->year,
+        // // Fetch all users to display in the form
+        $users = User::where('role', 'hrd')->select('id', 'name', 'jabatan')->get();
+
+        return view('mh.kinerja.add', compact('users'));
+    }
+
+    public function storekinerja(Request $request)
+    {
+        // Validasi input form
+        $validatedData = $request->validate([
+            'nama' => 'required|exists:users,id',
+            'perilaku' => 'required|string|max:255',
+            'nilai' => 'required|integer|min:1|max:5',
         ]);
 
-        // Insert data into the kinerjas table
+        // Simpan data Kinerja
         Kinerja::create([
-            'user_id' => $request->input('nama'),        // Assuming 'nama' stores user ID
-            'perilaku' => $request->input('perilaku'),
-            'nilai' => $request->input('nilai'),        // Include 'nilai' in the insert
-            'month' => $request->input('month'),
-            'year' => $request->input('year'),
+            'user_id' => $validatedData['nama'],
+            'perilaku' => $validatedData['perilaku'],
+            'nilai' => $validatedData['nilai'],
         ]);
 
-        // Redirect to the 'kpi' route with a success message
-        return redirect()->route('kpi')->with('success', 'Data kinerja berhasil ditambahkan.');
+        // Redirect ke route KPI dengan pesan sukses
+        return redirect()->route('add.kinerja')->with('success', 'Data Kinerja berhasil ditambahkan.');
+    }
+
+    // Display form for editing Kinerja
+    public function editkinerja($id)
+    {
+        // Retrieve the specific Kinerja record and all users
+        $kinerja = Kinerja::findOrFail($id);
+        $users = User::select('id', 'name')->get();
+        return view('mh.kinerja.edit', compact('kinerja', 'users'));
+    }
+
+    // Handle Kinerja update
+    public function updatekinerja(Request $request, $id)
+    {
+        // Validate the request
+        $request->validate([
+            'nama' => 'required|exists:users,id',
+            'perilaku' => 'required|string',
+            'nilai' => 'required|integer|min:1|max:5',
+
+        ]);
+
+        // Find and update the specific Kinerja record
+        $kinerja = Kinerja::findOrFail($id);
+        $kinerja->update([
+            'user_id' => $request->input('nama'), // Correctly pass user_id
+            'perilaku' => $request->input('perilaku'),
+            'nilai' => $request->input('nilai'),
+
+        ]);
+
+        return redirect()->route('kpi')->with('success', 'Data Kinerja berhasil diperbarui.');
+    }
+
+    // Handle Kinerja deletion
+    public function deletekinerja($id)
+    {
+        // Find and delete the specific Kinerja record
+        $kinerja = Kinerja::findOrFail($id);
+        $kinerja->delete();
+
+        return redirect()->route('kpi')->with('success', 'Data Kinerja berhasil dihapus.');
     }
 
     public function kpi(Request $request)
@@ -168,8 +237,9 @@ class MhController extends Controller
         // Fetch the 'jabatan' from the request
         $jabatan = $request->input('jabatan');
 
-        // Fetch KPIs based on 'jabatan'; if 'jabatan' is not provided, return an empty collection
-        $kpis = $jabatan ? KPI::where('jabatan', $jabatan)->get() : collect();
+        $kpis = KPI::where('jabatan', $jabatan)
+            ->orderBy('bobot', 'desc') // Urutkan berdasarkan bobot
+            ->get(['desc', 'bobot']);
 
         // Fetch users with role 'hrd'
         $users = User::where('role', 'hrd')->select('name', 'jabatan')->get();
@@ -216,33 +286,11 @@ class MhController extends Controller
                     }
                 },
             ],
-            // 'desc' => [
-            //     'required',
-            //     'string',
-            //     'max:255',
-            //     function ($attribute, $value, $fail) use ($request) {
-            //         if (!User::where('desc', $value)->where('name', $request->nama)->exists()) {
-            //             $fail('The selected description does not exist or does not match the selected user.');
-            //         }
-            //     },
-            // ],
-            // 'bobot' => [
-            //     'required',
-            //     'numeric',
-            //     'min:0',
-            //     'max:100',
-            //     function ($attribute, $value, $fail) use ($request) {
-            //         if (!User::where('desc', $request->desc)->where('bobot', $value)->exists()) {
-            //             $fail('The provided weight does not match the selected description.');
-            //         }
-            //     },
-            // ],
             'desc' => 'required|string',
             'bobot' => 'required|string',
             'target' => 'required|numeric|min:0',
             'realisasi' => 'required|numeric|min:0',
-            'month' => 'required|string',
-            'year' => 'required|numeric|min:1900|max:' . date('Y'),
+
         ]);
 
         // Calculate scores
@@ -259,8 +307,7 @@ class MhController extends Controller
             'realisasi' => $validatedData['realisasi'],
             'skor' => $skor,
             'final_skor' => $finalSkor,
-            'month' => $validatedData['month'],
-            'year' => $validatedData['year'],
+
         ]);
 
         // Redirect to KPI page with success message

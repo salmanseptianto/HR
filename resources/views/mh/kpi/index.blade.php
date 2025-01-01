@@ -1,177 +1,209 @@
 @extends('mh.templates.index')
 
 @section('page-mh')
-    <div class="container mx-auto p-4">
+    <div class="container mx-auto p-6 text-black shadow-md rounded-md bg-white">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-semibold">KPI dan Kinerja</h2>
+            <div class="flex space-x-3">
+                <a href="{{ url('manager-hrd/kpi') }}"
+                    class="bg-gray-700 hover:bg-gray-800 text-white py-2 px-4 rounded-md">Print KPI</a>
+                <a href="{{ url('manager-hrd/add-kpi') }}"
+                    class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md">Add KPI</a>
+                <a href="{{ url('manager-hrd/add-kinerja') }}"
+                    class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md">Add Kinerja</a>
+            </div>
+        </div>
 
+        <!-- Success Message -->
         @if (session('success'))
-            <div class="bg-green-500 text-white p-3 rounded mb-4">
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md">
                 {{ session('success') }}
             </div>
         @endif
 
-        <div class="space-y-6">
-
-            <div class="flex justify-between items-center mb-4">
-                <!-- Header Section -->
-                <h2 class="text-xl font-bold text-gray-700">KPI Management</h2>
-
-                <!-- Add KPI Button -->
-                <div class="flex justify-between items-center">
-                    <!-- Button Section -->
-                    <a href="{{ url('manager-hrd/kpi') }}"
-                        class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded shadow-md transition duration-200 mr-2">
-                        Print KPI
-                    </a>
-                    <a href="{{ url('manager-hrd/add-kpi') }}"
-                        class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded shadow-md transition duration-200 mr-2">
-                        Add KPI
-                    </a>
-                    <a href="{{ url('manager-hrd/kinerja') }}"
-                        class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded shadow-md transition duration-200">
-                        Add Kinerja
-                    </a>
-                </div>
-
-            </div>
-            <!-- Search Form with Additional Filters -->
-            <div class="space-y-4">
-                <form action="{{ route('kpi') }}" method="GET" class="space-y-4">
-                    <div class="flex items-center space-x-4 mb-4">
-                        <!-- Name Filter -->
-                        <div class="flex-1">
-                            <label for="search" class="block text-sm font-medium text-gray-700">Nama</label>
-                            <select id="search" name="search" class="mt-1 p-2 w-full border rounded">
-                                <option value="" selected>Pilih Nama</option>
-                                @foreach ($users as $user)
-                                    <option value="{{ $user->name }}"
-                                        {{ request('search') == $user->name ? 'selected' : '' }}>
-                                        {{ $user->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Month Filter -->
-                        <div class="flex-1">
-                            <label for="bulan" class="block text-sm font-medium text-gray-700">Bulan</label>
-                            <select id="bulan" name="bulan" class="mt-1 p-2 w-full border rounded">
-                                {{-- <option value="" disabled selected>Pilih Bulan</option> --}}
-                                <option value="" selected>Pilih Bulan</option>
-                                @php
-                                    $months = [
-                                        'Januari',
-                                        'Februari',
-                                        'Maret',
-                                        'April',
-                                        'Mei',
-                                        'Juni',
-                                        'Juli',
-                                        'Agustus',
-                                        'September',
-                                        'Oktober',
-                                        'November',
-                                        'Desember',
-                                    ];
-                                @endphp
-
-                                @foreach ($months as $index => $month)
-                                    <option value="{{ $month }}" {{ request('bulan') == $month ? 'selected' : '' }}>
-                                        {{ $month }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Year Filter -->
-                        <div class="flex-1">
-                            <label for="tahun" class="block text-sm font-medium text-gray-700">Tahun</label>
-                            <select id="tahun" name="tahun" class="mt-1 p-2 w-full border rounded">
-                                <option value="" disabled selected>Pilih Tahun</option>
-                                @php
-                                    $currentYear = date('Y');
-                                    $years = range($currentYear, 2020); // Generates an array from current year to 2020
-                                @endphp
-
-                                @foreach ($years as $year)
-                                    <option value="{{ $year }}" {{ request('tahun') == $year ? 'selected' : '' }}>
-                                        {{ $year }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Search Button -->
-                        <div>
-                            <button type="submit" class="bg-blue-500 text-white mt-6 py-2 px-4 rounded">Search</button>
-                        </div>
+        <!-- Filters Section -->
+        <div class="p-4 mb-6 rounded-md border bg-gray-100">
+            <form action="{{ route('kpi') }}" method="GET">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label for="search" class="block text-sm font-medium">Nama</label>
+                        <select id="search" name="search" class="mt-1 p-2 w-full border rounded">
+                            <option value="" selected>Pilih Nama</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->name }}"
+                                    {{ request('search') == $user->name ? 'selected' : '' }}>
+                                    {{ $user->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                </form>
-            </div>
+                    <div>
+                        <label for="bulan" class="block text-sm font-medium">Bulan</label>
+                        <select id="bulan" name="bulan" class="mt-1 p-2 w-full border rounded">
+                            <option value="" selected>Pilih Bulan</option>
+                            @foreach ($months as $index => $month)
+                                <option value="{{ $index + 1 }}" {{ request('bulan') == $index + 1 ? 'selected' : '' }}>
+                                    {{ $month }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label for="tahun" class="block text-sm font-medium">Tahun</label>
+                        <select id="tahun" name="tahun" class="mt-1 p-2 w-full border rounded">
+                            <option value="" selected>Pilih Tahun</option>
+                            @for ($year = now()->year; $year >= 2020; $year--)
+                                <option value="{{ $year }}" {{ request('tahun') == $year ? 'selected' : '' }}>
+                                    {{ $year }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                    <div>
+                        <button type="submit"
+                            class="mt-6 bg-gray-700 hover:bg-gray-800 py-2 px-4 text-white rounded-md w-full md:w-auto">
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
 
-        @if (!request('search') && !request('bulan'))
-            <!-- Pesan awal tanpa pencarian -->
-            <div class="p-2 rounded mb-3 text-sm text-center text-gray-600">
-                Silahkan, Cari data terlebih dahulu 🔍
-            </div>
-        @elseif (request('search') && $kpis->count() > 0)
-            <!-- Menampilkan data KPI setelah pencarian -->
-            <table class="table-auto w-full border-collapse border border-gray-200">
-                <thead class="bg-primary text-white">
+        <!-- KPI Section -->
+        @if (request('search') || request('bulan') || request('tahun'))
+            @if ($kpis->isNotEmpty())
+                <div class="p-4 mb-4 rounded-md border bg-gray-100">
+                    <p><strong>Nama:</strong> {{ $kpis->first()->nama }}</p>
+                    <p><strong>Jabatan:</strong> {{ $kpis->first()->jabatan }}</p>
+                </div>
+            @endif
+            <h3 class="text-lg font-semibold mb-4">Daftar KPI</h3>
+            <table class="table-auto w-full border border-gray-400">
+                <thead class="bg-gray-200">
                     <tr>
-                        <th class="border border-gray-300 p-2">Nama</th>
-                        <th class="border border-gray-300 p-2">Jabatan</th>
-                        <th class="border border-gray-300 p-2">Desc</th>
-                        <th class="border border-gray-300 p-2">Bobot</th>
-                        <th class="border border-gray-300 p-2">Target</th>
-                        <th class="border border-gray-300 p-2">Realisasi</th>
-                        <th class="border border-gray-300 p-2">Skor</th>
-                        <th class="border border-gray-300 p-2">Final Skor</th>
-                        <th class="border border-gray-300 p-2">Actions</th>
+                        <th class="py-1 px-2 border w-12">No.</th>
+                        <th class="py-2 px-4 border">Desc</th>
+                        <th class="py-2 px-4 border">Bobot</th>
+                        <th class="py-2 px-4 border">Target</th>
+                        <th class="py-2 px-4 border">Realisasi</th>
+                        <th class="py-2 px-4 border">Skor</th>
+                        <th class="py-2 px-4 border">Final Skor</th>
+                        <th class="py-2 px-4 border">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($kpis as $kpi)
-                        <tr>
-                            <td class="border border-gray-300 p-2">{{ $kpi->nama }}</td>
-                            <td class="border border-gray-300 p-2">{{ $kpi->jabatan }}</td>
-                            <td class="border border-gray-300 p-2">{{ \Illuminate\Support\Str::limit($kpi->desc, 30) }}
-                            </td>
-                            {{-- <td class="border border-gray-300 p-2">{{ $kpi->desc }}</td> --}}
-                            <td class="border border-gray-300 p-2">{{ number_format($kpi->bobot, 0, '.', '') }}</td>
-                            <td class="border border-gray-300 p-2">{{ number_format($kpi->target, 0, '.', '') }}</td>
-                            <td class="border border-gray-300 p-2">{{ number_format($kpi->realisasi, 0, '.', '') }}
-                            </td>
-                            <td class="border border-gray-300 p-2">{{ number_format($kpi->skor, 0, '.', '') }}</td>
-                            <td class="border border-gray-300 p-2">{{ $kpi->final_skor }}</td>
-                            <td class="border border-gray-300 p-2">
-                                <a href="{{ route('kpi.edit', $kpi->id) }}" class="text-blue-500">Edit</a>
+                    @forelse ($kpis as $kpi)
+                        <tr class="hover:bg-gray-100">
+                            <td class="py-2 px-4 border">{{ $loop->iteration }}</td>
+                            <td class="py-2 px-4 border">{{ $kpi->desc }}</td>
+                            <td class="py-2 px-4 border text-center">{{ number_format($kpi->bobot, 0, '.', '') }}</td>
+                            <td class="py-2 px-4 border text-center">{{ number_format($kpi->target, 0, '.', '') }}</td>
+                            <td class="py-2 px-4 border text-center">{{ number_format($kpi->realisasi, 0, '.', '') }}</td>
+                            <td class="py-2 px-4 border text-center">{{ number_format($kpi->skor, 0, '.', '') }}</td>
+                            <td class="py-2 px-4 border text-center">{{ $kpi->final_skor }}</td>
+                            <td class="py-2 px-4 border text-center w-32">
+                                <a href="{{ route('kpi.edit', $kpi->id) }}" class="text-blue-500">Edit</a> |
                                 <form action="{{ route('kpi.destroy', $kpi->id) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-red-500 ml-4">Delete</button>
+                                    <button type="submit" class="text-red-500">Hapus</button>
                                 </form>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="8" class="py-4 text-center text-gray-500">Data tidak ditemukan.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
-                <tfoot class="font-bold">
-                    <tr>
-                        <td class="border border-gray-300 p-2 text-bold text-center" colspan="3">Total Skor Akhir
-                        </td>
-                        <td class="border border-gray-300 text-bold text-start pl-2">{{ $totalBobot }}</td>
-                        <td class="border border-gray-300 p-2" colspan="3"></td>
-                        <td class="border border-gray-300 p-2 text-bold text-start pl-2">{{ $totalFinalSkor }}</td>
-                        <td class="border border-gray-300 p-2"></td>
+                <tfoot>
+                    <tr class="bg-gray-200">
+                        <td colspan="6" class="py-2 px-4 font-bold">Total</td>
+                        <td class="py-2 px-4">{{ $totalFinalSkor }}</td>
+                        <td class="border"></td>
                     </tr>
                 </tfoot>
             </table>
+        @endif
+
+        <!-- Kinerja Section -->
+        @if (request('search') || request('bulan') || request('tahun'))
+            <h3 class="text-lg font-semibold mb-4 mt-3">Daftar Kinerja</h3>
+            <table class="table-auto w-full border border-gray-400">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="py-1 px-2 border w-12">No.</th>
+                        <th class="py-2 px-4 border">Perilaku</th>
+                        <th class="py-2 px-4 border w-28 ">Nilai</th>
+                        <th class="py-2 px-4 border w-32">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($kinerja as $k)
+                        <tr class="hover:bg-gray-100">
+                            <td class="py-2 px-4 border">{{ $loop->iteration }}</td>
+                            <td class="py-2 px-4 border">{{ $k->perilaku }}</td>
+                            <td class="py-2 px-4 border text-center">{{ $k->nilai }}</td>
+                            <td class="py-2 px-4 border text-center">
+                                <a href="{{ route('edit.kinerja', $k->id) }}"
+                                    class="text-indigo-400 hover:text-indigo-200">Edit</a> |
+                                <form action="{{ route('delete.kinerja', $k->id) }}" method="POST" class="inline-block">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-400 hover:text-red-200">Hapus</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="py-4 text-center text-gray-400">Data tidak ditemukan.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+                <tfoot>
+                    <tr class="bg-gray-200">
+                        <td colspan="2" class="py-2 px-4 font-bold">Total</td>
+                        <td class="py-2 px-4">{{ $totalNilai }}</td>
+                        <td class="border"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        @endif
+
+        <!-- Total KPI dan Kinerja Section -->
+        @if (request('search') || request('bulan') || request('tahun'))
+            <h3 class="text-lg font-semibold mb-4 mt-3">Total KPI dan Kinerja</h3>
+            @php
+                $hasilAkhir = ($totalFinalSkor + $totalNilai) / 2;
+                $kategori = match (true) {
+                    $hasilAkhir <= 40 => 'Kurang',
+                    $hasilAkhir <= 60 => 'Cukup',
+                    $hasilAkhir <= 90 => 'Baik',
+                    default => 'Sangat Baik',
+                };
+            @endphp
+            <table class="table-auto w-full border border-gray-400">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="py-1 px-2 border w-12">No.</th>
+                        <th class="py-2 px-4 border">Nilai KPI</th>
+                        <th class="py-2 px-4 border">Nilai Kinerja</th>
+                        <th class="py-2 px-4 border">Hasil Akhir</th>
+                        <th class="py-2 px-4 border">Kategori Nilai</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="hover:bg-gray-100">
+                        <td class="py-2 px-4 border text-center">1</td>
+                        <td class="py-2 px-4 border text-center">{{ number_format($totalFinalSkor, 2) }}</td>
+                        <td class="py-2 px-4 border text-center">{{ number_format($totalNilai, 2) }}</td>
+                        <td class="py-2 px-4 border text-center">{{ number_format($hasilAkhir, 2) }}</td>
+                        <td class="py-2 px-4 border text-center">{{ $kategori }}</td>
+                    </tr>
+                </tbody>
+            </table>
         @else
-            <!-- Pesan data tidak ditemukan -->
             <div class="bg-red-500 p-2 rounded mb-3 text-sm text-center text-white">
                 Maaf, data yang Anda cari tidak ditemukan 🙏
             </div>
         @endif
-
     </div>
 @endsection
